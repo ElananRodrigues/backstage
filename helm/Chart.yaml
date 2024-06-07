@@ -1,0 +1,9 @@
+apiVersion: v2
+name: backstage
+description:  A Helm chart for deploying the backstage on Kubernetes. 
+home: https://github.com/ElananRodrigues/backstage
+sources:
+  - https://github.com/ElananRodrigues/backstage
+type: application
+version: 0.0.0
+appVersion: 0.0.0

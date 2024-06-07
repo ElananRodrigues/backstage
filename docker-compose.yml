@@ -1,0 +1,58 @@
+version: "3"
+
+services:
+  reverse-proxy:
+    # The official v3 Traefik docker image
+    image: traefik:v3.0
+    # Enables the web UI and tells Traefik to listen to docker
+    command: --api.insecure=true --api.dashboard=true --providers.docker
+    ports:
+      # The HTTP port
+      - "80:80"
+      # The Web UI (enabled by --api.insecure=true)
+      - "8080:8080"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.whoami.rule=Host(`traefik.localhost`)"
+      - "traefik.http.services.whoami.loadbalancer.server.port=8080"
+      - traefik.http.routers.traefik_https.middlewares=basic-auth-global
+      - traefik.http.middlewares.basic-auth-global.basicauth.users=root:admin
+    volumes:
+      # So that Traefik can listen to the Docker events
+      - /var/run/docker.sock:/var/run/docker.sock
+  
+  backstage:
+    build:
+      context: .
+      dockerfile: packages/backend/Dockerfile
+    restart: always
+    ports:
+      - "7007:8080"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.backstage.rule=Host(`backstage.localhost`)"
+      - "traefik.http.services.backstage.loadbalancer.server.port=8080"
+    env_file:
+      - .env
+    depends_on:
+      - db_backstage
+  
+  db_backstage:
+    image: postgres:latest
+    container_name: db_backstage
+    restart: unless-stopped
+    ports:
+      - '5434:5432'
+    volumes:
+      - db_backstage_data:/data/postgres
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
+
+volumes:
+  db_backstage_data:
+    driver: local
+    external: false
+
+    

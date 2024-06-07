@@ -1,0 +1,126 @@
+apiVersion: scaffolder.backstage.io/v1beta3
+kind: Template
+metadata:
+  name: pull-request-dataops-cluster
+  title: Repo DataOps Cluster PR
+  description: Template para criar um novo pull request no repositório de DataOps para criar um novo Cluster
+spec:
+  owner: hype/infra
+  type: service
+
+  parameters:
+    - title: Nome do Cluster a ser criado, tipo e target path
+      required:
+        - clusterName
+        - environment
+        - instaceName
+        - targetPath
+      properties:
+        clusterName:
+          title: Nome do Cluster
+          type: string
+          description: Nome do Cluster a ser criado
+          ui:field: EntityNamePicker
+          ui:autofocus: true
+        destroyService:
+          title: Deletar Cluster via Terraform
+          type: string
+          description: Deletar Cluster via Terraform
+          default: 'false'
+          enum:
+            - 'false'
+            - 'true'
+          enumNames:
+            - 'NÃO'
+            - 'SIM'
+        environment:
+          title: Ambiente do Serviço
+          type: string
+          description: Ambiente onde o serviço será criado
+          default: staging
+          enum:
+            - staging
+            - production
+          enumNames:
+            - 'staging'
+            - 'production'
+        instaceName:
+          title: Nome da Instância do Serviço
+          type: string
+          description: Nome da instância do serviço a ser criado
+          default: t2.micro
+          enum:
+            - t2.micro
+            - t2.small
+            - t2.medium
+            - t2.large
+            - t2.xlarge
+            - t2.2xlarge
+            - t3.micro
+            - t3.small
+            - t3.medium
+            - t3.large
+            - t3.xlarge
+            - t3.2xlarge
+          enumNames:
+            - t2.micro (1 vCPU, 1GB RAM) $8.47/mo
+            - t2.small (1 vCPU, 2GB RAM) $16.79/mo
+            - t2.medium (2 vCPU, 4GB RAM) $33.87/mo
+            - t2.large (2 vCPU, 8GB RAM) $67.74/mo
+            - t2.xlarge (4 vCPU, 16GB RAM) $135.49/mo
+            - t2.2xlarge (8 vCPU, 32GB RAM) $270.98/mo
+            - t3.micro (2 vCPU, 1GB RAM) $7.59/mo
+            - t3.small (2 vCPU, 2GB RAM) $15.18/mo
+            - t3.medium (2 vCPU, 4GB RAM) $30.37/mo
+            - t3.large (2 vCPU, 8GB RAM) $60.74/mo
+            - t3.xlarge (4 vCPU, 16GB RAM) $121.47/mo
+            - t3.2xlarge (8 vCPU, 32GB RAM) $242.94/mo
+        targetPath:
+          title: Target Path no repo
+          type: string
+          description: Nome do diretório ou caminho a ser criado no repositório
+          default: ./
+
+    - title: Repositório que receberá o PR
+      required:
+        - repoUrl
+      properties:
+        repoUrl:
+          title: "Owner: Hype-Empreendimentos, Repository: dataops"
+          description: O local do repositório onde o PR será criado.
+          type: string
+          ui:field: RepoUrlPicker
+          ui:options:
+            allowedHosts:
+              - github.com
+
+  steps:
+    - id: fetch-base
+      name: Fetch Base
+      action: fetch:template
+      input:
+        url: ./dataops-cluster
+        copyWithoutRender:
+          - .github/workflows/*
+        values:
+          name: ${{parameters.clusterName}}
+          environment: ${{parameters.environment}}
+          instance: ${{parameters.instaceName}}
+          destroyService: ${{parameters.destroyService}}
+          owner: ${{ parameters.repoUrl.split("=").join(" ").split("?").join("").split("&").join(" ").split(" ")[1] }}
+
+    - id: publish
+      name: Publish
+      action: publish:github:pull-request
+      input:
+        title: "Criando novo serviço: ${{parameters.clusterName}}-${{parameters.environment}}"
+        repoUrl: ${{ parameters.repoUrl }}
+        branchName: ${{parameters.clusterName}}
+        description: Criando serviço ${{parameters.clusterName}}-${{parameters.environment}}
+        targetPath: ${{ parameters.targetPath if parameters.targetPath else parameters.clusterName }}
+        repository: "gitops"
+
+  output:
+    links:
+      - url: ${{steps.publish.output.remoteUrl}}
+        title: "Go to PR"

@@ -1,0 +1,101 @@
+apiVersion: scaffolder.backstage.io/v1beta3
+kind: Template
+metadata:
+  name: pull-request-repository-exists
+  title: Repositorio Existente PR - Para adicionar estrutura de serviço
+  description: Cria um PR em um repositório existente
+spec:
+  owner: hype/devops
+  type: devops
+
+  parameters:
+    - title: Nome do Serviço a ser criado
+      required:
+        - service
+        - clusterName
+        - environment
+        - targetPath
+      properties:
+        service:
+          title: Nome do Serviço
+          type: string
+          description: Nome do serviço a ser criado
+          ui:field: EntityNamePicker
+          ui:autofocus: true
+        clusterName:
+          title: Nome do Cluster
+          type: string
+          description: Selecionar cluster
+          default: cluster-product
+          enum:
+            - cluster-product
+            - cluster-devops
+          enumNames:
+            - 'cluster-product'
+            - 'cluster-devops'
+        environment:
+          title: Ambiente do Serviço
+          type: string
+          description: Ambiente onde o serviço será criado
+          default: staging
+          enum:
+            - staging
+            - production
+          enumNames:
+            - 'staging'
+            - 'production'
+        targetPath:
+          title: Local a ser criado no repositório
+          type: string
+          description: Local onde o serviço será criado no repositório
+          default: ./
+
+    - title: Repositorio onde sera criado o PR
+      required:
+        - repoUrl
+      properties:
+        repoUrl:
+          title: "Owner: Hype-Empreendimentos, Repository: [Nome do Repositório]"
+          description: URL do repositório onde o PR será criado
+          type: string
+          ui:field: RepoUrlPicker
+          ui:options:
+            allowedHosts:
+              - github.com
+        branch:
+          title: Branch
+          type: string
+          description: Branch do repositório
+          default: develop
+
+  steps:
+    - id: fetch-base
+      name: Fetch Base
+      action: fetch:template
+      input:
+        url: ./gitreposexists
+        copyWithoutRender:
+          - .github/workflows/*
+        values:
+          name: ${{parameters.service}}
+          cluster: ${{parameters.clusterName}}
+          environment: ${{ parameters.environment }}
+          url_env: ${{ '' if parameters.environment == 'production' else '-stg' }}
+          owner: ${{ parameters.repoUrl.split("=").join(" ").split("?").join("").split("&").join(" ").split(" ")[1] }}
+
+    - id: publish
+      name: Publish
+      action: publish:github:pull-request
+      input:
+        title: "Adicionando serviço: ${{parameters.service}} ${{parameters.clusterName}}-${{parameters.environment}}"
+        repoUrl: ${{ parameters.repoUrl }}
+        description: Adicionando serviço ${{parameters.service}}
+        targetPath: ${{ parameters.targetPath if parameters.targetPath else parameters.service }}
+        branchName: ${{parameters.service}}
+        targetBranchName: ${{parameters.branch}}
+
+  output:
+    links:
+      - url: ${{steps.publish.output.remoteUrl}}
+        title: "Go to PR"
+        description: "Link para o PR criado"

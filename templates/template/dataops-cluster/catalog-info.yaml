@@ -1,0 +1,25 @@
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: dataops
+  description: "Criando serviço DataOps"
+  labels:
+    system: web-apps
+  tags:
+    - terraform
+    - dataops
+  links:
+    - url: https://github.com/${{ values.owner }}/dataops
+      title: ${{ values.name }} no Service GitHub
+      icon: code
+  annotations:
+    opsgenie.com/component-selector: 'tag:"service:dataops"'
+    jenkins.io/github-folder: '${{ values.owner }}/dataops'
+    fossa.io/project-name: ${{ values.name }}
+    goharbor.io/repository-slug: '${{ values.owner }}/dataops'
+    github.com/project-slug: '${{ values.owner }}/dataops'
+    backstage.io/techdocs-ref: dir:.
+spec:
+  type: service
+  lifecycle: experimental
+  owner: user:guest

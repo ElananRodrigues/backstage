@@ -1,0 +1,31 @@
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: ${{ values.name | dump }}
+  description: "Criando serviço ${{ values.name }}"
+  labels:
+    system: web-apps
+  tags:
+    - javascript
+    - react
+  links:
+    - url: https://github.com/${{ values.owner }}/${{ values.name }}
+      title: GitHub Repo ${{ values.name }} URL
+      icon: code
+    - url: https://${{ values.name }}.hypeempreendimentos.com.br/
+      title: URL ${{ values.name }} Production
+      icon: code
+    - url: https://${{ values.name }}-stg.hypeempreendimentos.com.br/
+      title: URL ${{ values.name }} Staging
+      icon: code
+  annotations:
+    opsgenie.com/component-selector: 'tag:"service:${{ values.name }}"'
+    jenkins.io/github-folder: '${{ values.owner }}/${{ values.name }}'
+    fossa.io/project-name: ${{ values.name }}
+    goharbor.io/repository-slug: '${{ values.owner }}/${{ values.name }}'
+    github.com/project-slug: '${{ values.owner }}/${{ values.name }}'
+    backstage.io/techdocs-ref: dir:.
+spec:
+  type: service
+  lifecycle: experimental
+  owner: user:guest

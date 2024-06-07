@@ -1,0 +1,128 @@
+app:
+  # Should be the same as backend.baseUrl when using the `app-backend` plugin.
+  baseUrl: ${BACKSTAGE_APPLICATION_BASE_URL}
+
+organization:
+  name: Hype Empreendimentos
+
+backend:
+  # Note that the baseUrl should be the URL that the browser and other clients
+  # should use when communicating with the backend, i.e. it needs to be
+  # reachable not just from within the backend host, but from all of your
+  # callers. When its value is "http://localhost:7007", it's strictly private
+  # and can't be reached by others.
+  baseUrl: ${BACKSTAGE_APPLICATION_BASE_URL}
+  # The listener can also be expressed as a single <host>:<port> string. In this case we bind to
+  # all interfaces, the most permissive setting. The right value depends on your specific deployment.
+  listen: ':8080'
+  csp:
+    default-src: ['none']
+    connect-src: ["'self'", 'http:', 'https:']
+    frame-src: ["'self'", 'http:', 'https:', 'data:', 'blob:', '*']
+    object-src: ["'self'"]
+    script-src-elem:
+      - "'self'"
+      - "'unsafe-eval'"
+      - "'unsafe-inline'"
+      - "'self' ajax.cloudflare.com cdnjs.cloudflare.com static.cloudflareinsights.com"
+    script-src: 
+      - "'self'"
+      - "'unsafe-eval'"
+      - "'unsafe-inline'"
+      - "'self' ajax.cloudflare.com cdnjs.cloudflare.com static.cloudflareinsights.com"
+    img-src:
+      - "'self'"
+      - 'data:'
+    # Content-Security-Policy directives follow the Helmet format: https://helmetjs.github.io/#reference
+    # Default Helmet Content-Security-Policy values can be removed by setting the key to false
+  cors:
+    origin: ${BACKSTAGE_APPLICATION_BASE_URL}
+    methods: [GET, HEAD, PATCH, POST, PUT, DELETE]
+    credentials: true
+  # This is for local development only, it is not recommended to use this in production
+  # The production database configuration is stored in app-config.production.yaml
+  # config options: https://node-postgres.com/api/client
+  database:
+    # client: better-sqlite3
+    # connection: ':memory:'
+    client: pg
+    connection:
+      host: ${POSTGRES_HOST}
+      port: ${POSTGRES_PORT}
+      user: ${POSTGRES_USER}
+      password: ${POSTGRES_PASSWORD}
+      # sslmode: 'PGSSLMODE'
+      # ssl:
+      #   require: true
+      #   rejectUnauthorized: true 
+    # ensureExists: true
+    # pluginDivisionMode: schema
+    # plugin:
+    #   catalog:
+    #     connection:
+    #       database: ${POSTGRES_DB}
+    #   auth:
+    #     connection:
+    #       database: ${POSTGRES_DB}
+    #   app:
+    #     connection:
+    #       database: ${POSTGRES_DB}
+    #   scaffolder:
+    #     connection:
+    #       database: ${POSTGRES_DB}
+
+integrations:
+  github:
+    - host: github.com
+      token: ${GITHUB_TOKEN}
+
+techdocs:
+  builder: 'local' # Alternatives - 'external'
+  generator:
+    runIn: 'docker' # Alternatives - 'local'
+    dockerImage: 'spotify/techdocs'
+    pullImage: true
+  publisher:
+    type: 'local' # Alternatives - 'googleGcs' or 'awsS3'. Read documentation for using alternatives.
+
+auth:
+  # see https://backstage.io/docs/auth/ to learn about auth providers
+  autologout:
+    enabled: true
+  environment: production
+  providers:
+    # See https://backstage.io/docs/auth/guest/provider
+    guest: null
+    github:
+      production:
+        clientId: ${AUTH_GITHUB_CLIENT_ID}
+        clientSecret: ${AUTH_GITHUB_CLIENT_SECRET}
+        callbackUrl: ${BACKSTAGE_APPLICATION_BASE_URL}/api/auth/github/handler/frame
+        signIn:
+          resolvers:
+            - resolver: usernameMatchingUserEntityName
+            - resolver: emailMatchingUserEntityProfileEmail
+            - resolver: emailLocalPartMatchingUserEntityName
+
+catalog:
+  import:
+    entityFilename: catalog-info.yaml
+    pullRequestBranchName: backstage-integration
+  rules:
+    - allow: [Component, System, API, Resource, Location]
+  locations:
+    # Local example data, file locations are relative to the backend process, typically `packages/backend`
+    - type: file
+      target: ./templates/entities.yaml
+
+    # Local example template
+    - type: file
+      target: ./templates/template/*.yaml
+      rules:
+        - allow: [Template]
+
+    # Local example organizational data
+    - type: file
+      target: ./templates/org.yaml
+      rules:
+        - allow: [User, Group]

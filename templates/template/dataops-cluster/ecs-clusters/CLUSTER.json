@@ -1,0 +1,8 @@
+{
+    "environment": "${{ values.environment }}",
+    "cluster_name": "${{ values.name }}",
+    "enable_terraform": "true",
+    "terraform": {
+        "destroy": "${{ values.destroyService }}"
+    }
+}

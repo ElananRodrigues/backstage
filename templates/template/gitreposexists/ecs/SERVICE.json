@@ -1,0 +1,5 @@
+{
+    "environment": "${{ values.environment }}",
+    "cluster_name": "${{ values.cluster }}",
+    "url": "https://${{ values.name }}${{ values.url_env }}.hypeempreendimentos.com.br"
+}
