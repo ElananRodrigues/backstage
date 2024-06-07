@@ -79,7 +79,7 @@ const customAuth: any = createBackendModule({
               // console.log(ctx);
               // console.log("========================================");
               // Split the email into the local part and the domain.
-              const [localPart, domain] = profile.email.split('@');
+              const [localPart] = profile.email.split('@');
               
               // if (domain !== 'gmail.com') {
               //   throw new Error(
