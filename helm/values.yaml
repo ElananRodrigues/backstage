@@ -40,9 +40,9 @@ securityContext:
   # -- Run as a non-privileged user
   privileged: false
   readOnlyRootFilesystem: false
-  runAsGroup: 1000
+  runAsGroup: 1001
   runAsNonRoot: true
-  runAsUser: 1000
+  runAsUser: 1001
 
 # -- Service configuration to expose the server
 service:

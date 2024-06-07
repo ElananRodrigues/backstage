@@ -30,6 +30,9 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
 # If this occurs, then ensure BuildKit is enabled (`DOCKER_BUILDKIT=1`) so the app dir is correctly created as `node`.
 WORKDIR /app
 
+RUN addgroup -g 1001 -S backstage
+RUN adduser -S backstage -u 1001
+
 COPY ../../catalog-info.yaml /app/catalog-info.yaml
 COPY ../../templates /app/templates
 
@@ -49,6 +52,8 @@ RUN --mount=type=cache,target=/home/node/.cache/yarn,sharing=locked,uid=1000,gid
 COPY packages/backend/dist/bundle.tar.gz app-config*.yaml ./
 RUN tar xzf bundle.tar.gz && rm bundle.tar.gz
 
-RUN chmod 755 /app
+RUN chown -R backstage:backstage /app
+
+USER backstage
 
 CMD ["node", "packages/backend", "--config", "app-config.yaml", "--config", "app-config.production.yaml"]
