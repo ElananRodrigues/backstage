@@ -138,5 +138,24 @@ podDisruptionBudget:
   maxUnavailable: ""
 
 env: 
-  - name: ENVIRONMENT
-    value: production
+  BACKSTAGE_APPLICATION_BASE_URL: "https://backstage.matrixrevolutions.dev.br"
+secrets:
+  backstage:
+    - name: ENVIRONMENT
+      alias: ENVIRONMENT
+    - name: AUTH_GITHUB_CLIENT_ID
+      alias: AUTH_GITHUB_CLIENT_ID
+    - name: AUTH_GITHUB_CLIENT_SECRET
+      alias: AUTH_GITHUB_CLIENT_SECRET
+    - name: GITHUB_TOKEN
+      alias: GITHUB_TOKEN
+    - name: POSTGRES_HOST
+      alias: POSTGRES_HOST
+    - name: POSTGRES_PORT
+      alias: POSTGRES_PORT
+    - name: POSTGRES_USER
+      alias: POSTGRES_USER
+    - name: POSTGRES_PASSWORD
+      alias: POSTGRES_PASSWORD
+    - name: POSTGRES_DB
+      alias: POSTGRES_DB
