@@ -39,10 +39,11 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: .
-          file: ./Dockerfile
+          file: ./packages/backend/Dockerfile
           push: true
           tags: |
             docker.io/${{ secrets.DOCKER_USERNAME }}/${{ steps.extract-repository-name.outputs.REPO_NAME }}:${{ steps.docker-image.outputs.IMAGE_NAME }}
+      
       - name: Extract Image sha256
         id: image-digest
         run: |
