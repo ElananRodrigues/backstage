@@ -49,30 +49,8 @@ service:
   # -- Service type
   type: ClusterIP
   # -- Port where the server will be exposed
-  port: 8080
-  internalPort: 8080
-
-ingress:
-  # -- Enable ingress
-  enabled: false
-  # -- Ingress class
-  ingressClassName: "nginx"
-  # -- Ingress annotations
-  annotations: 
-    ingress.kubernetes.io/proxy-body-size: 100M
-    ingress.kubernetes.io/app-root: "/"
-    kubernetes.io/tls-acme: "true"
-  # -- Ingress hosts
-  hosts:
-    - host: app-helm.matrixrevolutions.dev.br
-      paths:
-        - path: /
-          pathType: Prefix
-  # -- Ingress TLS configuration
-  tls:
-    - hosts:
-        - app-helm.matrixrevolutions.dev.br
-      secretName: tls-matrixrevolutions.dev.br
+  port: 3000
+  internalPort: 3000
 
 resources: {}
 # We usually recommend not to specify default resources and to leave this as a conscious
