@@ -76,6 +76,15 @@ spec:
           - name: "{{ $key }}"
             value: "{{ $value }}"
           {{- end }}
+          {{- range $secretName, $keys := .Values.secrets }}
+          {{- range $secretkey := $keys }}
+          - name: {{ $secretkey.alias }}
+            valueFrom:
+              secretKeyRef:
+                name: {{ $secretName }}
+                key: {{ $secretkey.name }}
+          {{- end }}
+          {{- end }}
         {{- with .Values.resources }}
         resources:
           {{- toYaml .Values.resources | nindent 12 }}

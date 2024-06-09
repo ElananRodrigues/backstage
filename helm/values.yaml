@@ -139,8 +139,9 @@ podDisruptionBudget:
 
 env: 
   BACKSTAGE_APPLICATION_BASE_URL: "https://backstage.matrixrevolutions.dev.br"
+
 secrets:
-  backstage:
+  backstage-secrets:
     - name: ENVIRONMENT
       alias: ENVIRONMENT
     - name: AUTH_GITHUB_CLIENT_ID
